@@ -1,6 +1,9 @@
 import { Injectable } from '@nestjs/common'
 import { PrismaService } from 'src/core/prisma/prisma.service'
-import { USER_SELECT } from './constants/users-select.constants'
+import {
+  USER_SELECT,
+  USER_SELECT_WITH_PASSWORD,
+} from './constants/users-select.constants'
 
 @Injectable()
 export class UsersRepository {
@@ -18,10 +21,17 @@ export class UsersRepository {
     })
   }
 
-  async findByEmail(email: string, select = USER_SELECT) {
+  async findByEmail(email: string) {
     return this.prisma.user.findUnique({
       where: { email },
-      select: select,
+      select: USER_SELECT,
+    })
+  }
+
+  async findByEmailWithPassword(email: string) {
+    return this.prisma.user.findUnique({
+      where: { email },
+      select: USER_SELECT_WITH_PASSWORD,
     })
   }
 
