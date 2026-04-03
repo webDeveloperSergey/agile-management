@@ -5,9 +5,15 @@ import { USER_SELECT } from './constants/users-select.constants'
 @Injectable()
 export class UsersRepository {
   constructor(private readonly prisma: PrismaService) {}
-
   async findAll() {
     return this.prisma.user.findMany({
+      select: USER_SELECT,
+    })
+  }
+
+  async findById(id: string) {
+    return this.prisma.user.findUnique({
+      where: { user_id: id },
       select: USER_SELECT,
     })
   }

@@ -1,12 +1,27 @@
-import { BadRequestException, Injectable } from '@nestjs/common'
+import {
+  BadRequestException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common'
 import { hash } from 'argon2'
-import { ALREADY_REGISTERED } from './constants/users-messages.constants'
+import {
+  ALREADY_REGISTERED,
+  NOT_FOUND_BY_ID,
+} from './constants/users-messages.constants'
 import { CreateUserDto } from './dto/create-user.dto'
 import { UsersRepository } from './users.repository'
 
 @Injectable()
 export class UsersService {
   constructor(private readonly usersRepository: UsersRepository) {}
+
+  async getOneUser(id: string) {
+    const currentUser = await this.usersRepository.findById(id)
+
+    if (!currentUser) throw new NotFoundException(NOT_FOUND_BY_ID)
+
+    return currentUser
+  }
 
   async getAllUsers() {
     return this.usersRepository.findAll()
