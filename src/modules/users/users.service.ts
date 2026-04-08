@@ -31,6 +31,10 @@ export class UsersService {
     return this.usersRepository.findByEmail(email)
   }
 
+  async getUserByEmailWithPassword(email: string) {
+    return this.usersRepository.findByEmailWithPassword(email)
+  }
+
   async createUser(userData: CreateUserDto) {
     const { email, password } = userData
 

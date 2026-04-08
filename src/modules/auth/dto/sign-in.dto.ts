@@ -1,3 +1,3 @@
 import { BaseCredentialsDto } from 'src/shared/dto/base-credentials.dto'
 
-export class CreateUserDto extends BaseCredentialsDto {}
+export class SignInDto extends BaseCredentialsDto {}
