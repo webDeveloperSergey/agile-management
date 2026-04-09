@@ -44,4 +44,12 @@ export class UsersRepository {
       select: USER_SELECT,
     })
   }
+
+  async updateRefreshToken(user_id: string, refresh_token: string) {
+    return this.prisma.user.update({
+      where: { user_id },
+      data: { refresh_token },
+      select: USER_SELECT,
+    })
+  }
 }
