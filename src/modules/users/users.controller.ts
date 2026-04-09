@@ -6,7 +6,9 @@ import {
   HttpStatus,
   Param,
   Post,
+  UseGuards,
 } from '@nestjs/common'
+import { JwtGuard } from 'src/shared/guards/jwt.guard'
 import { CreateUserDto } from './dto/create-user.dto'
 import { UsersService } from './users.service'
 
@@ -19,6 +21,7 @@ export class UsersController {
     return this.usersService.getOneUser(id)
   }
 
+  @UseGuards(JwtGuard)
   @Get()
   findAll() {
     return this.usersService.getAllUsers()
