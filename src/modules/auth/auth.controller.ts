@@ -1,4 +1,12 @@
-import { Body, Controller, HttpCode, HttpStatus, Post } from '@nestjs/common'
+import {
+  Body,
+  Controller,
+  HttpCode,
+  HttpStatus,
+  Post,
+  Res,
+} from '@nestjs/common'
+import { Response } from 'express'
 import { AuthService } from './auth.service'
 import { SignInDto } from './dto/sign-in.dto'
 
@@ -8,7 +16,15 @@ export class AuthController {
 
   @HttpCode(HttpStatus.OK)
   @Post('login')
-  signIn(@Body() signInDto: SignInDto) {
-    return this.authService.signIn(signInDto)
+  async signIn(
+    @Body() signInDto: SignInDto,
+    @Res({ passthrough: true }) res: Response,
+  ) {
+    const { refresh_token, ...response } =
+      await this.authService.signIn(signInDto)
+
+    this.authService.addRefreshTokenToCookie(res, refresh_token)
+
+    return response
   }
 }
