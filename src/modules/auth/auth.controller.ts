@@ -6,9 +6,11 @@ import {
   Post,
   Res,
 } from '@nestjs/common'
-import { Response } from 'express'
+import { Response, Request } from 'express'
 import { AuthService } from './auth.service'
 import { SignInDto } from './dto/sign-in.dto'
+import { Cookies } from 'src/shared/decorators/cookies.decorator'
+import { REFRESH_TOKEN_NAME } from './constants/auth-token.constants'
 
 @Controller('auth')
 export class AuthController {
@@ -30,5 +32,7 @@ export class AuthController {
 
   @HttpCode(HttpStatus.OK)
   @Post('refresh')
-  async refreshToken() {}
+  async refresh(@Cookies(REFRESH_TOKEN_NAME) refreshToken: string) {
+    await this.authService.refresh(refreshToken)
+  }
 }

@@ -3,6 +3,7 @@ import {
   Injectable,
   NotFoundException,
 } from '@nestjs/common'
+import { Prisma } from 'prisma/generated/prisma/client'
 import { hash } from 'argon2'
 import {
   ALREADY_REGISTERED,
@@ -27,18 +28,17 @@ export class UsersService {
     return this.usersRepository.findAll()
   }
 
-  async getUserByEmail(email: string) {
-    return this.usersRepository.findByEmail(email)
-  }
-
-  async getUserByEmailWithPassword(email: string) {
-    return this.usersRepository.findByEmailWithPassword(email)
+  async getUserByEmail<CustomSelect extends Prisma.UserSelect>(
+    email: string,
+    select?: CustomSelect,
+  ) {
+    return this.usersRepository.findByEmail(email, select)
   }
 
   async createUser(userData: CreateUserDto) {
     const { email, password } = userData
 
-    const currentUser = await this.getUserByEmail(email)
+    const currentUser = await this.getUserByEmail(email, undefined)
     if (currentUser) throw new BadRequestException(ALREADY_REGISTERED)
 
     const hashPwd = await hash(password)

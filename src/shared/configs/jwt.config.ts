@@ -8,7 +8,7 @@ export const getJwtConfig = (
   secret: configService.get('JWT_SECRET'),
   signOptions: {
     expiresIn: isDevMode(configService)
-      ? '24h'
-      : configService.get('JWT_EXPIRES_IN'),
+      ? '1h'
+      : `${configService.get('JWT_EXPIRES_IN')}m`,
   },
 })
