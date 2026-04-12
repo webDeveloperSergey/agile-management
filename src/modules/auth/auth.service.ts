@@ -13,6 +13,7 @@ import {
 } from './constants/auth-token.constants'
 import type { JwtRefreshPayload } from 'src/shared/types/jwt-payload.interface'
 import {
+  USER_SELECT,
   USER_SELECT_WITH_PASSWORD,
   USER_SELECT_WITH_REFRESH_TOKEN,
 } from 'src/shared/constants/users-select.constants'
@@ -39,7 +40,7 @@ export class AuthService {
   }
 
   async register(registerDto: RegisterDto) {
-    const newUser = await this.usersService.createUser(registerDto)
+    const newUser = await this.usersService.createUser(registerDto, USER_SELECT)
 
     const { access_token, refresh_token } = this.generateTokens(
       newUser.user_id,
