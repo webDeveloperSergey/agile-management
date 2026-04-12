@@ -11,10 +11,24 @@ import { AuthService } from './auth.service'
 import { SignInDto } from './dto/sign-in.dto'
 import { Cookies } from 'src/shared/decorators/cookies.decorator'
 import { REFRESH_TOKEN_NAME } from './constants/auth-token.constants'
+import type { RegisterDto } from './dto/register.dto'
 
 @Controller('auth')
 export class AuthController {
   constructor(private authService: AuthService) {}
+
+  @Post('register')
+  async register(
+    @Body() registerDto: RegisterDto,
+    @Res({ passthrough: true }) res: Response,
+  ) {
+    const { refresh_token, ...response } =
+      await this.authService.register(registerDto)
+
+    this.authService.addRefreshTokenToCookie(res, refresh_token)
+
+    return response
+  }
 
   @HttpCode(HttpStatus.OK)
   @Post('login')

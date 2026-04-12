@@ -18,7 +18,7 @@ export class UsersRepository {
   ) {
     return this.prisma.user.findUnique({
       where: { user_id: id },
-      select: select,
+      select: select ?? undefined,
     })
   }
 
@@ -28,17 +28,21 @@ export class UsersRepository {
   ) {
     return this.prisma.user.findUnique({
       where: { email },
-      select,
+      select: select ?? undefined,
     })
   }
 
-  async create(email: string, password: string) {
+  async create<CustomSelect extends Prisma.UserSelect>(
+    email: string,
+    password: string,
+    select?: CustomSelect,
+  ) {
     return this.prisma.user.create({
       data: {
         email,
         password,
       },
-      select: USER_SELECT,
+      select: select ?? undefined,
     })
   }
 

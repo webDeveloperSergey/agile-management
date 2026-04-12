@@ -17,6 +17,7 @@ import {
   USER_SELECT_WITH_REFRESH_TOKEN,
 } from 'src/shared/constants/users-select.constants'
 import type { User } from 'prisma/generated/prisma/client'
+import type { RegisterDto } from './dto/register.dto'
 
 @Injectable()
 export class AuthService {
@@ -37,16 +38,33 @@ export class AuthService {
     }
   }
 
+  async register(registerDto: RegisterDto) {
+    const newUser = await this.usersService.createUser(registerDto)
+
+    const { access_token, refresh_token } = this.generateTokens(
+      newUser.user_id,
+      newUser.email,
+    )
+
+    // Записываем в БД хеш refresh токена
+    await this.setHashToken(newUser, refresh_token)
+
+    return {
+      user: newUser,
+      refresh_token,
+      access_token,
+    }
+  }
+
   async signIn(signInDto: SignInDto) {
     const validatedUser = await this.validateUser(signInDto)
 
-    const tokens = this.generateTokens(
+    const { access_token, refresh_token } = this.generateTokens(
       validatedUser.user_id,
       validatedUser.email,
     )
 
     // Записываем в БД хеш refresh токена
-    const { access_token, refresh_token } = tokens
     await this.setHashToken(validatedUser, refresh_token)
 
     return {

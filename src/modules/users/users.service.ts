@@ -38,15 +38,18 @@ export class UsersService {
     return this.usersRepository.findByEmail(email, select)
   }
 
-  async createUser(userData: CreateUserDto) {
+  async createUser<CustomSelect extends Prisma.UserSelect>(
+    userData: CreateUserDto,
+    select?: CustomSelect,
+  ) {
     const { email, password } = userData
 
-    const currentUser = await this.getUserByEmail(email, undefined)
+    const currentUser = await this.getUserByEmail(email)
     if (currentUser) throw new BadRequestException(ALREADY_REGISTERED)
 
     const hashPwd = await hash(password)
 
-    const newUser = await this.usersRepository.create(email, hashPwd)
+    const newUser = await this.usersRepository.create(email, hashPwd, select)
 
     return newUser
   }
