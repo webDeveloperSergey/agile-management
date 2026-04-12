@@ -43,4 +43,14 @@ export class AuthController {
 
     return { access_token }
   }
+
+  @HttpCode(HttpStatus.NO_CONTENT)
+  @Post('logout')
+  async logout(
+    @Cookies(REFRESH_TOKEN_NAME) refreshToken: string,
+    @Res({ passthrough: true }) res: Response,
+  ) {
+    await this.authService.logout(refreshToken)
+    this.authService.clearRefreshTokenCookie(res)
+  }
 }

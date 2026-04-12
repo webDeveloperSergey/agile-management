@@ -82,6 +82,11 @@ export class AuthService {
     }
   }
 
+  async logout(token: string) {
+    const currentUserId = await this.extractUserIdFromRefreshToken(token)
+    await this.usersService.updateRefreshToken(currentUserId, null)
+  }
+
   // Private helpers ========
   private async validateUser(signInDto: SignInDto) {
     const { email, password } = signInDto
