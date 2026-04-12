@@ -16,8 +16,11 @@ import { UsersRepository } from './users.repository'
 export class UsersService {
   constructor(private readonly usersRepository: UsersRepository) {}
 
-  async getOneUser(id: string) {
-    const currentUser = await this.usersRepository.findById(id)
+  async getOneUser<CustomSelect extends Prisma.UserSelect>(
+    id: string,
+    select?: CustomSelect,
+  ) {
+    const currentUser = await this.usersRepository.findById(id, select)
 
     if (!currentUser) throw new NotFoundException(NOT_FOUND_BY_ID)
 

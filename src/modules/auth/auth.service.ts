@@ -12,7 +12,11 @@ import {
   REFRESH_TOKEN_NAME,
 } from './constants/auth-token.constants'
 import type { JwtRefreshPayload } from 'src/shared/types/jwt-payload.interface'
-import { USER_SELECT_WITH_PASSWORD } from 'src/shared/constants/users-select.constants'
+import {
+  USER_SELECT_WITH_PASSWORD,
+  USER_SELECT_WITH_REFRESH_TOKEN,
+} from 'src/shared/constants/users-select.constants'
+import type { User } from 'prisma/generated/prisma/client'
 
 @Injectable()
 export class AuthService {
@@ -43,12 +47,7 @@ export class AuthService {
 
     // Записываем в БД хеш refresh токена
     const { access_token, refresh_token } = tokens
-    const hashedRefreshToken = await hash(refresh_token)
-
-    await this.usersService.updateRefreshToken(
-      validatedUser.user_id,
-      hashedRefreshToken,
-    )
+    await this.setHashToken(validatedUser, refresh_token)
 
     return {
       user: validatedUser,
@@ -59,8 +58,28 @@ export class AuthService {
 
   async refresh(token: string) {
     const currentUserId = await this.extractUserIdFromRefreshToken(token)
+    const currentUser = await this.usersService.getOneUser(
+      currentUserId,
+      USER_SELECT_WITH_REFRESH_TOKEN,
+    )
 
-    console.log(currentUserId, 'currentUserId')
+    if (!currentUser.refresh_token) throw new UnauthorizedException()
+
+    const isValidToken = await verify(currentUser.refresh_token, token)
+
+    if (!isValidToken) throw new UnauthorizedException()
+
+    const { access_token, refresh_token } = this.generateTokens(
+      currentUser.user_id,
+      currentUser.email,
+    )
+
+    await this.setHashToken(currentUser, refresh_token)
+
+    return {
+      refresh_token,
+      access_token,
+    }
   }
 
   // Private helpers ========
@@ -108,6 +127,11 @@ export class AuthService {
     }
 
     return userId
+  }
+
+  private async setHashToken(user: Omit<User, 'password'>, token: string) {
+    const hashedRefreshToken = await hash(token)
+    await this.usersService.updateRefreshToken(user.user_id, hashedRefreshToken)
   }
   // ./ Private helpers ========
 

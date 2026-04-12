@@ -32,7 +32,15 @@ export class AuthController {
 
   @HttpCode(HttpStatus.OK)
   @Post('refresh')
-  async refresh(@Cookies(REFRESH_TOKEN_NAME) refreshToken: string) {
-    await this.authService.refresh(refreshToken)
+  async refresh(
+    @Cookies(REFRESH_TOKEN_NAME) refreshToken: string,
+    @Res({ passthrough: true }) res: Response,
+  ) {
+    const { refresh_token, access_token } =
+      await this.authService.refresh(refreshToken)
+
+    this.authService.addRefreshTokenToCookie(res, refresh_token)
+
+    return { access_token }
   }
 }

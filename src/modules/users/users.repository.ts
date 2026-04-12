@@ -12,10 +12,13 @@ export class UsersRepository {
     })
   }
 
-  async findById(id: string) {
+  async findById<CustomSelect extends Prisma.UserSelect>(
+    id: string,
+    select?: CustomSelect,
+  ) {
     return this.prisma.user.findUnique({
       where: { user_id: id },
-      select: USER_SELECT,
+      select: select,
     })
   }
 
