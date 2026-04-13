@@ -139,18 +139,14 @@ export class AuthService {
   }
 
   private async extractUserIdFromRefreshToken(token: string) {
-    let userId = ''
-
     try {
       const payload: JwtRefreshPayload =
         await this.jwtService.verifyAsync(token)
 
-      userId = payload.id
+      return payload.id
     } catch {
       throw new UnauthorizedException()
     }
-
-    return userId
   }
 
   private async setHashToken(user: Omit<User, 'password'>, token: string) {
