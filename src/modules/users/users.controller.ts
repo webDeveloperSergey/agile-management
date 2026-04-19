@@ -13,6 +13,9 @@ import { CreateUserDto } from './dto/create-user.dto'
 import { UsersService } from './users.service'
 import { ApiBearerAuth, ApiOperation, ApiResponse } from '@nestjs/swagger'
 import { USER_SELECT } from 'src/shared/constants/users-select.constants'
+import { RoleGuard } from 'src/shared/guards/roles.guard'
+import { UserRole } from 'prisma/generated/prisma/client'
+import { Roles } from 'src/shared/decorators/roles.decorator'
 
 @Controller('users')
 export class UsersController {
@@ -26,7 +29,8 @@ export class UsersController {
 
   @ApiOperation({ summary: 'Get many users' })
   @ApiBearerAuth()
-  @UseGuards(JwtGuard)
+  @UseGuards(JwtGuard, RoleGuard)
+  @Roles(UserRole.ADMIN)
   @Get()
   findAll() {
     return this.usersService.getAllUsers()

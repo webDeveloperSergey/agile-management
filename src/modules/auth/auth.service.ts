@@ -11,7 +11,10 @@ import {
   ENV_REFRESH_EXPIRES,
   REFRESH_TOKEN_NAME,
 } from './constants/auth-token.constants'
-import type { JwtRefreshPayload } from 'src/shared/types/jwt-payload.interface'
+import type {
+  JwtPayload,
+  JwtRefreshPayload,
+} from 'src/shared/types/jwt-payload.interface'
 import {
   USER_SELECT,
   USER_SELECT_WITH_PASSWORD,
@@ -19,6 +22,7 @@ import {
 } from 'src/shared/constants/users-select.constants'
 import type { User } from 'prisma/generated/prisma/client'
 import type { RegisterDto } from './dto/register.dto'
+import { UserRole } from 'prisma/generated/prisma/client'
 
 @Injectable()
 export class AuthService {
@@ -45,6 +49,7 @@ export class AuthService {
     const { access_token, refresh_token } = this.generateTokens(
       newUser.user_id,
       newUser.email,
+      newUser.role,
     )
 
     // Записываем в БД хеш refresh токена
@@ -63,6 +68,7 @@ export class AuthService {
     const { access_token, refresh_token } = this.generateTokens(
       validatedUser.user_id,
       validatedUser.email,
+      validatedUser.role,
     )
 
     // Записываем в БД хеш refresh токена
@@ -91,6 +97,7 @@ export class AuthService {
     const { access_token, refresh_token } = this.generateTokens(
       currentUser.user_id,
       currentUser.email,
+      currentUser.role,
     )
 
     await this.setHashToken(currentUser, refresh_token)
@@ -124,8 +131,8 @@ export class AuthService {
     return userWithoutPassword
   }
 
-  private generateTokens(user_id: string, email: string) {
-    const payload = { sub: user_id, email }
+  private generateTokens(user_id: string, email: string, role: UserRole) {
+    const payload: JwtPayload = { sub: user_id, email, role }
 
     const access_token = this.jwtService.sign(payload)
     const refresh_token = this.jwtService.sign(

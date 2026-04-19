@@ -1,6 +1,7 @@
 const USER_SELECT = {
   user_id: true,
   email: true,
+  role: true,
   createdAt: true,
 } as const
 
