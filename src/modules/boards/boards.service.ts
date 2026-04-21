@@ -6,7 +6,8 @@ import { CreateBoardDto } from './dto/create-board.dto'
 export class BoardsService {
   constructor(private readonly boardsRepository: BoardsRepository) {}
 
-  createBoard(createBoardDto: CreateBoardDto) {
+  createBoard(createBoardDto: CreateBoardDto, userId: string) {
     console.log(createBoardDto, 'createBoardDto')
+    console.log(userId, 'userId')
   }
 }
