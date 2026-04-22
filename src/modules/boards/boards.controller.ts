@@ -22,11 +22,14 @@ import { CreateBoardDto } from './dto/create-board.dto'
 export class BoardsController {
   constructor(private readonly boardsService: BoardsService) {}
 
-  @Roles(UserRole.ADMIN)
   @Get(':id')
-  getBoard(@Param('id') boardId: string) {
-    //TODO: Доработать таким образом, чтобы отдавать только те доски, в которых состоит юзер
-    return this.boardsService.getBoardById(boardId)
+  getBoard(@Param('id') boardId: string, @CurrentUser() user: JwtPayload) {
+    return this.boardsService.getBoardById(boardId, user.sub)
+  }
+
+  @Get()
+  findAll(@CurrentUser() user: JwtPayload) {
+    return this.boardsService.findAllBoards(user.sub)
   }
 
   @Roles(UserRole.ADMIN)

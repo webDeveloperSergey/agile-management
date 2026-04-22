@@ -8,15 +8,38 @@ import { CreateBoardDto } from './dto/create-board.dto'
 export class BoardsRepository {
   constructor(private readonly prisma: PrismaService) {}
 
-  async getBoard(boardId: string) {
+  async findAllBoards(userId: string) {
+    return this.prisma.board.findMany({
+      where: {
+        OR: [
+          {
+            owner_id: userId,
+          },
+          {
+            memberships: { some: { user_id: userId } },
+          },
+        ],
+      },
+      select: BOARD_SELECT,
+    })
+  }
+
+  async getBoard(boardId: string, userId: string) {
     return this.prisma.board.findUnique({
-      where: { board_id: boardId },
+      where: {
+        board_id: boardId,
+        OR: [
+          { owner_id: userId },
+          { memberships: { some: { user_id: userId } } },
+        ],
+      },
       select: BOARD_SELECT,
     })
   }
 
   async createBoard(createBoardDto: CreateBoardDto, userId: string) {
     const { name, description, memberships } = createBoardDto
+
     const prismaMemberships = memberships?.map((memberId) => ({
       user_id: memberId,
       role: BoardRole.MEMBER,
