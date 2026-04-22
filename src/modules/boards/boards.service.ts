@@ -6,8 +6,11 @@ import { CreateBoardDto } from './dto/create-board.dto'
 export class BoardsService {
   constructor(private readonly boardsRepository: BoardsRepository) {}
 
-  createBoard(createBoardDto: CreateBoardDto, userId: string) {
-    console.log(createBoardDto, 'createBoardDto')
-    console.log(userId, 'userId')
+  async getBoardById(boardId: string) {
+    return await this.boardsRepository.getBoard(boardId)
+  }
+
+  async createBoard(createBoardDto: CreateBoardDto, userId: string) {
+    return await this.boardsRepository.createBoard(createBoardDto, userId)
   }
 }
