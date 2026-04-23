@@ -8,7 +8,7 @@ import {
 
 export class CreateBoardDto {
   @IsNotEmpty()
-  @Length(3, 20)
+  @Length(3, 40)
   name: string
 
   @IsOptional()

@@ -6,6 +6,7 @@ import {
   HttpCode,
   HttpStatus,
   Param,
+  Patch,
   Post,
   UseGuards,
 } from '@nestjs/common'
@@ -17,6 +18,7 @@ import { RoleGuard } from 'src/shared/guards/roles.guard'
 import type { JwtPayload } from 'src/shared/types/jwt-payload.interface'
 import { BoardsService } from './boards.service'
 import { CreateBoardDto } from './dto/create-board.dto'
+import { UpdateBoardDto } from './dto/update-board.dto'
 
 @UseGuards(JwtGuard, RoleGuard)
 @Controller('boards')
@@ -41,6 +43,16 @@ export class BoardsController {
     @CurrentUser() user: JwtPayload,
   ) {
     return this.boardsService.createBoard(createBoardDto, user.sub)
+  }
+
+  @Roles(UserRole.ADMIN)
+  @Patch(':id')
+  updateBoard(
+    @Param('id') boardId: string,
+    @CurrentUser() user: JwtPayload,
+    @Body() updateBoardDto: UpdateBoardDto,
+  ) {
+    return this.boardsService.updateBoard(boardId, user.sub, updateBoardDto)
   }
 
   @Roles(UserRole.ADMIN)

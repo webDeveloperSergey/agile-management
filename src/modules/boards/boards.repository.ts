@@ -3,6 +3,7 @@ import { BoardRole } from 'prisma/generated/prisma/client'
 import { PrismaService } from 'src/core/prisma/prisma.service'
 import { BOARD_SELECT } from './constants/selects.constants'
 import { CreateBoardDto } from './dto/create-board.dto'
+import { UpdateBoardDto } from './dto/update-board.dto'
 
 @Injectable()
 export class BoardsRepository {
@@ -55,6 +56,22 @@ export class BoardsRepository {
         },
       },
       select: BOARD_SELECT,
+    })
+  }
+
+  async updateBoard(
+    boardId: string,
+    userId: string,
+    updateBoardDto: UpdateBoardDto,
+  ) {
+    const { name, description } = updateBoardDto
+
+    return await this.prisma.board.updateMany({
+      where: { board_id: boardId, owner_id: userId },
+      data: {
+        name,
+        description,
+      },
     })
   }
 
