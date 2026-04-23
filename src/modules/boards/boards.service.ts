@@ -1,8 +1,14 @@
-import { Injectable, NotFoundException } from '@nestjs/common'
+import {
+  ConflictException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common'
 import { BoardsRepository } from './boards.repository'
 import {
   DELETE_PERMISSION_DENIED,
+  MEMBER_ALREADY_EXISTS,
   NOT_FOUND_BY_ID,
+  OWNER_PERMISSION_DENIED,
   UPDATE_PERMISSION_DENIED,
 } from './constants/boards-messages.constants'
 import { CreateBoardDto } from './dto/create-board.dto'
@@ -58,14 +64,32 @@ export class BoardsService {
   }
 
   //members ======================================
+  async addMember(boardId: string, memberId: string, userId: string) {
+    await this.checkOwner(boardId, userId)
+    await this.checkMemberExists(boardId, memberId)
+    await this.boardsRepository.addMember(boardId, memberId)
+  }
+
   async deleteMember(boardId: string, memberId: string, userId: string) {
+    await this.checkOwner(boardId, userId)
+    await this.boardsRepository.deleteMember(boardId, memberId)
+  }
+
+  private async checkOwner(boardId: string, userId: string) {
     const boardByOwner = await this.boardsRepository.getBoardByOwner(
       boardId,
       userId,
     )
 
-    if (!boardByOwner) throw new NotFoundException(DELETE_PERMISSION_DENIED)
+    if (!boardByOwner) throw new NotFoundException(OWNER_PERMISSION_DENIED)
+  }
 
-    await this.boardsRepository.deleteMember(boardId, memberId)
+  private async checkMemberExists(boardId: string, memberId: string) {
+    const existingMember = await this.boardsRepository.findMember(
+      boardId,
+      memberId,
+    )
+
+    if (existingMember) throw new ConflictException(MEMBER_ALREADY_EXISTS)
   }
 }

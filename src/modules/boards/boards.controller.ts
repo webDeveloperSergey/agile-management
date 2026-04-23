@@ -65,6 +65,17 @@ export class BoardsController {
   //members ======================================
   @Roles(UserRole.ADMIN)
   @HttpCode(HttpStatus.NO_CONTENT)
+  @Post(':id/members/:memberId')
+  addMember(
+    @Param('id') boardId: string,
+    @Param('memberId') memberId: string,
+    @CurrentUser() user: JwtPayload,
+  ) {
+    return this.boardsService.addMember(boardId, memberId, user.sub)
+  }
+
+  @Roles(UserRole.ADMIN)
+  @HttpCode(HttpStatus.NO_CONTENT)
   @Delete(':id/members/:memberId')
   deleteMember(
     @Param('id') boardId: string,

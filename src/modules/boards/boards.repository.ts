@@ -88,6 +88,27 @@ export class BoardsRepository {
   }
 
   //members ======================================
+  async addMember(boardId: string, memberId: string) {
+    return await this.prisma.boardMembership.create({
+      data: {
+        board_id: boardId,
+        user_id: memberId,
+        role: BoardRole.MEMBER,
+      },
+    })
+  }
+
+  async findMember(boardId: string, memberId: string) {
+    return await this.prisma.boardMembership.findUnique({
+      where: {
+        board_id_user_id: {
+          board_id: boardId,
+          user_id: memberId,
+        },
+      },
+    })
+  }
+
   async deleteMember(boardId: string, memberId: string) {
     return await this.prisma.boardMembership.deleteMany({
       where: {
