@@ -61,4 +61,16 @@ export class BoardsController {
   deleteBoard(@Param('id') boardId: string, @CurrentUser() user: JwtPayload) {
     return this.boardsService.deleteBoardById(boardId, user.sub)
   }
+
+  //members ======================================
+  @Roles(UserRole.ADMIN)
+  @HttpCode(HttpStatus.NO_CONTENT)
+  @Delete(':id/members/:memberId')
+  deleteMember(
+    @Param('id') boardId: string,
+    @Param('memberId') memberId: string,
+    @CurrentUser() user: JwtPayload,
+  ) {
+    return this.boardsService.deleteMember(boardId, memberId, user.sub)
+  }
 }

@@ -38,6 +38,12 @@ export class BoardsRepository {
     })
   }
 
+  async getBoardByOwner(boardId: string, userId: string) {
+    return this.prisma.board.findUnique({
+      where: { board_id: boardId, owner_id: userId },
+    })
+  }
+
   async createBoard(createBoardDto: CreateBoardDto, userId: string) {
     const { name, description, memberships } = createBoardDto
 
@@ -78,6 +84,16 @@ export class BoardsRepository {
   async deleteBoard(boardId: string, userId: string) {
     return await this.prisma.board.deleteMany({
       where: { board_id: boardId, owner_id: userId },
+    })
+  }
+
+  //members ======================================
+  async deleteMember(boardId: string, memberId: string) {
+    return await this.prisma.boardMembership.deleteMany({
+      where: {
+        board_id: boardId,
+        user_id: memberId,
+      },
     })
   }
 }

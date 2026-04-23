@@ -56,4 +56,16 @@ export class BoardsService {
     if (result.count === 0)
       throw new NotFoundException(DELETE_PERMISSION_DENIED)
   }
+
+  //members ======================================
+  async deleteMember(boardId: string, memberId: string, userId: string) {
+    const boardByOwner = await this.boardsRepository.getBoardByOwner(
+      boardId,
+      userId,
+    )
+
+    if (!boardByOwner) throw new NotFoundException(DELETE_PERMISSION_DENIED)
+
+    await this.boardsRepository.deleteMember(boardId, memberId)
+  }
 }
