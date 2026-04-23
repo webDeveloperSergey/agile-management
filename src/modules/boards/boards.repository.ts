@@ -57,4 +57,10 @@ export class BoardsRepository {
       select: BOARD_SELECT,
     })
   }
+
+  async deleteBoard(boardId: string, userId: string) {
+    return await this.prisma.board.deleteMany({
+      where: { board_id: boardId, owner_id: userId },
+    })
+  }
 }

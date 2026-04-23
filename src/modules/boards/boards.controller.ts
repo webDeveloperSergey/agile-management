@@ -1,6 +1,7 @@
 import {
   Body,
   Controller,
+  Delete,
   Get,
   HttpCode,
   HttpStatus,
@@ -40,5 +41,12 @@ export class BoardsController {
     @CurrentUser() user: JwtPayload,
   ) {
     return this.boardsService.createBoard(createBoardDto, user.sub)
+  }
+
+  @Roles(UserRole.ADMIN)
+  @HttpCode(HttpStatus.NO_CONTENT)
+  @Delete(':id')
+  deleteBoard(@Param('id') boardId: string, @CurrentUser() user: JwtPayload) {
+    return this.boardsService.deleteBoardById(boardId, user.sub)
   }
 }

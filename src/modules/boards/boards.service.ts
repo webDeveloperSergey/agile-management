@@ -1,7 +1,10 @@
 import { Injectable, NotFoundException } from '@nestjs/common'
 import { BoardsRepository } from './boards.repository'
+import {
+  DELETE_PERMISSION_DENIED,
+  NOT_FOUND_BY_ID,
+} from './constants/boards-messages.constants'
 import { CreateBoardDto } from './dto/create-board.dto'
-import { NOT_FOUND_BY_ID } from './constants/boards-messages.constants'
 
 @Injectable()
 export class BoardsService {
@@ -21,5 +24,12 @@ export class BoardsService {
 
   async createBoard(createBoardDto: CreateBoardDto, userId: string) {
     return await this.boardsRepository.createBoard(createBoardDto, userId)
+  }
+
+  async deleteBoardById(boardId: string, userId: string) {
+    const result = await this.boardsRepository.deleteBoard(boardId, userId)
+
+    if (result.count === 0)
+      throw new NotFoundException(DELETE_PERMISSION_DENIED)
   }
 }
