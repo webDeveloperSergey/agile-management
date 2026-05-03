@@ -10,6 +10,7 @@ model Board {
   owner    User   @relation(fields: [owner_id], references: [user_id])
 
   memberships BoardMembership[] // участники доски
+  columns Column[] // колонки доски
 
   @@map("boards")
 }
