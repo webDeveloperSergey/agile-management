@@ -53,6 +53,7 @@ export const AnyNull = runtime.AnyNull
 export const ModelName = {
   Board: 'Board',
   BoardMembership: 'BoardMembership',
+  Column: 'Column',
   User: 'User'
 } as const
 
@@ -93,6 +94,18 @@ export const BoardMembershipScalarFieldEnum = {
 } as const
 
 export type BoardMembershipScalarFieldEnum = (typeof BoardMembershipScalarFieldEnum)[keyof typeof BoardMembershipScalarFieldEnum]
+
+
+export const ColumnScalarFieldEnum = {
+  column_id: 'column_id',
+  name: 'name',
+  order: 'order',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt',
+  board_id: 'board_id'
+} as const
+
+export type ColumnScalarFieldEnum = (typeof ColumnScalarFieldEnum)[keyof typeof ColumnScalarFieldEnum]
 
 
 export const UserScalarFieldEnum = {

@@ -1,5 +1,6 @@
 import {
   IsArray,
+  IsBoolean,
   IsNotEmpty,
   IsOptional,
   IsUUID,
@@ -9,7 +10,7 @@ import {
 export class CreateBoardDto {
   @IsNotEmpty()
   @Length(3, 40)
-  name: string
+  name!: string
 
   @IsOptional()
   @Length(5, 100)
@@ -19,4 +20,8 @@ export class CreateBoardDto {
   @IsArray()
   @IsUUID('4', { each: true })
   memberships?: string[]
+
+  @IsOptional()
+  @IsBoolean()
+  withDefaultColumns: boolean = true
 }

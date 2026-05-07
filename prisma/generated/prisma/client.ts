@@ -50,6 +50,11 @@ export type Board = Prisma.BoardModel
  */
 export type BoardMembership = Prisma.BoardMembershipModel
 /**
+ * Model Column
+ * 
+ */
+export type Column = Prisma.ColumnModel
+/**
  * Model User
  * 
  */

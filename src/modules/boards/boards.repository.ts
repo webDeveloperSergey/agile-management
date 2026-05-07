@@ -1,6 +1,7 @@
 import { Injectable } from '@nestjs/common'
 import { BoardRole } from 'prisma/generated/prisma/client'
 import { PrismaService } from 'src/core/prisma/prisma.service'
+import { DEFAULT_COLUMNS } from './constants/default-columns.constants'
 import { BOARD_SELECT } from './constants/selects.constants'
 import { CreateBoardDto } from './dto/create-board.dto'
 import { UpdateBoardDto } from './dto/update-board.dto'
@@ -45,7 +46,8 @@ export class BoardsRepository {
   }
 
   async createBoard(createBoardDto: CreateBoardDto, userId: string) {
-    const { name, description, memberships } = createBoardDto
+    const { name, description, memberships, withDefaultColumns } =
+      createBoardDto
 
     const prismaMemberships = memberships?.map((memberId) => ({
       user_id: memberId,
@@ -60,6 +62,13 @@ export class BoardsRepository {
         memberships: {
           create: prismaMemberships,
         },
+        columns: withDefaultColumns
+          ? {
+              createMany: {
+                data: [...DEFAULT_COLUMNS],
+              },
+            }
+          : undefined,
       },
       select: BOARD_SELECT,
     })

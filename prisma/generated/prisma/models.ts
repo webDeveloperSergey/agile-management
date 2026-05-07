@@ -10,5 +10,6 @@
  */
 export type * from './models/Board'
 export type * from './models/BoardMembership'
+export type * from './models/Column'
 export type * from './models/User'
 export type * from './commonInputTypes'

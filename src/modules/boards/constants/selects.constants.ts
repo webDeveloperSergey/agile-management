@@ -14,6 +14,13 @@ const BOARD_SELECT = {
       role: true,
     },
   },
+  columns: {
+    select: {
+      column_id: true,
+      name: true,
+      order: true,
+    },
+  },
 } as const
 
 export { BOARD_SELECT }
