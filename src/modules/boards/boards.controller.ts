@@ -6,6 +6,7 @@ import {
   HttpCode,
   HttpStatus,
   Param,
+  ParseUUIDPipe,
   Patch,
   Post,
   UseGuards,
@@ -26,7 +27,7 @@ export class BoardsController {
   constructor(private readonly boardsService: BoardsService) {}
 
   @Get(':id')
-  getBoard(@Param('id') boardId: string, @CurrentUser() user: JwtPayload) {
+  getBoard(@Param('id', ParseUUIDPipe) boardId: string, @CurrentUser() user: JwtPayload) {
     return this.boardsService.getBoardById(boardId, user.sub)
   }
 
@@ -48,7 +49,7 @@ export class BoardsController {
   @Roles(UserRole.ADMIN)
   @Patch(':id')
   updateBoard(
-    @Param('id') boardId: string,
+    @Param('id', ParseUUIDPipe) boardId: string,
     @CurrentUser() user: JwtPayload,
     @Body() updateBoardDto: UpdateBoardDto,
   ) {
@@ -58,7 +59,7 @@ export class BoardsController {
   @Roles(UserRole.ADMIN)
   @HttpCode(HttpStatus.NO_CONTENT)
   @Delete(':id')
-  deleteBoard(@Param('id') boardId: string, @CurrentUser() user: JwtPayload) {
+  deleteBoard(@Param('id', ParseUUIDPipe) boardId: string, @CurrentUser() user: JwtPayload) {
     return this.boardsService.deleteBoardById(boardId, user.sub)
   }
 
@@ -67,8 +68,8 @@ export class BoardsController {
   @HttpCode(HttpStatus.NO_CONTENT)
   @Post(':id/members/:memberId')
   addMember(
-    @Param('id') boardId: string,
-    @Param('memberId') memberId: string,
+    @Param('id', ParseUUIDPipe) boardId: string,
+    @Param('memberId', ParseUUIDPipe) memberId: string,
     @CurrentUser() user: JwtPayload,
   ) {
     return this.boardsService.addMember(boardId, memberId, user.sub)
@@ -78,8 +79,8 @@ export class BoardsController {
   @HttpCode(HttpStatus.NO_CONTENT)
   @Delete(':id/members/:memberId')
   deleteMember(
-    @Param('id') boardId: string,
-    @Param('memberId') memberId: string,
+    @Param('id', ParseUUIDPipe) boardId: string,
+    @Param('memberId', ParseUUIDPipe) memberId: string,
     @CurrentUser() user: JwtPayload,
   ) {
     return this.boardsService.deleteMember(boardId, memberId, user.sub)

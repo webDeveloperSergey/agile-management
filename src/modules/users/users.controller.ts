@@ -5,6 +5,7 @@ import {
   HttpCode,
   HttpStatus,
   Param,
+  ParseUUIDPipe,
   Post,
   UseGuards,
 } from '@nestjs/common'
@@ -23,7 +24,7 @@ export class UsersController {
 
   @ApiOperation({ summary: 'Get one user by id param' })
   @Get(':id')
-  findOne(@Param('id') id: string) {
+  findOne(@Param('id', ParseUUIDPipe) id: string) {
     return this.usersService.getOneUser(id)
   }
 
