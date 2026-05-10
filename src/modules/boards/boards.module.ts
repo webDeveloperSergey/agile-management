@@ -7,6 +7,7 @@ import { Reflector } from '@nestjs/core'
 import { BoardsRepository } from './boards.repository'
 
 @Module({
+  exports: [BoardsService],
   controllers: [BoardsController],
   providers: [BoardsService, BoardsRepository, JwtGuard, RoleGuard, Reflector],
 })
