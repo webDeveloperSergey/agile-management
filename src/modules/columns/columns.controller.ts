@@ -1,15 +1,20 @@
 import {
+  Body,
   Controller,
   Get,
+  HttpCode,
+  HttpStatus,
   Param,
   ParseUUIDPipe,
+  Post,
   UseGuards,
 } from '@nestjs/common'
-import { ColumnsService } from './columns.service'
 import { CurrentUser } from 'src/shared/decorators/current-user.decorator'
-import type { JwtPayload } from 'src/shared/types/jwt-payload.interface'
 import { JwtGuard } from 'src/shared/guards/jwt.guard'
 import { RoleGuard } from 'src/shared/guards/roles.guard'
+import type { JwtPayload } from 'src/shared/types/jwt-payload.interface'
+import { ColumnsService } from './columns.service'
+import { CreateColumnDto } from './dto/create-column.dto'
 
 @UseGuards(JwtGuard, RoleGuard)
 @Controller('boards/:boardId/columns')
@@ -22,5 +27,15 @@ export class ColumnsController {
     @CurrentUser() user: JwtPayload,
   ) {
     return this.columnsService.getColumns(boardId, user.sub)
+  }
+
+  @HttpCode(HttpStatus.CREATED)
+  @Post()
+  createColumn(
+    @Param('boardId', ParseUUIDPipe) boardId: string,
+    @CurrentUser() user: JwtPayload,
+    @Body() createColumnDto: CreateColumnDto,
+  ) {
+    return this.columnsService.createColumn(boardId, user.sub, createColumnDto)
   }
 }

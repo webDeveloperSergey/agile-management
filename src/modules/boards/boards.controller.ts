@@ -27,7 +27,10 @@ export class BoardsController {
   constructor(private readonly boardsService: BoardsService) {}
 
   @Get(':id')
-  getBoard(@Param('id', ParseUUIDPipe) boardId: string, @CurrentUser() user: JwtPayload) {
+  getBoard(
+    @Param('id', ParseUUIDPipe) boardId: string,
+    @CurrentUser() user: JwtPayload,
+  ) {
     return this.boardsService.getBoardById(boardId, user.sub)
   }
 
@@ -59,7 +62,10 @@ export class BoardsController {
   @Roles(UserRole.ADMIN)
   @HttpCode(HttpStatus.NO_CONTENT)
   @Delete(':id')
-  deleteBoard(@Param('id', ParseUUIDPipe) boardId: string, @CurrentUser() user: JwtPayload) {
+  deleteBoard(
+    @Param('id', ParseUUIDPipe) boardId: string,
+    @CurrentUser() user: JwtPayload,
+  ) {
     return this.boardsService.deleteBoardById(boardId, user.sub)
   }
 

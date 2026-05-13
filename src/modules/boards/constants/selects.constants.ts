@@ -20,6 +20,7 @@ const BOARD_SELECT = {
       name: true,
       order: true,
     },
+    orderBy: { order: 'asc' },
   },
 } as const
 
