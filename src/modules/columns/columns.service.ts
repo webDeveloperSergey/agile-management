@@ -8,8 +8,9 @@ import { ColumnsRepository } from './columns.repository'
 import {
   CANNOT_CREATE_COLUMN,
   DELETE_PERMISSION_DENIED,
-} from './dto/columns-messages.constants'
+} from './constants/columns-messages.constants'
 import { CreateColumnDto } from './dto/create-column.dto'
+import { UpdateColumnDto } from './dto/update-column.dto'
 
 @Injectable()
 export class ColumnsService {
@@ -44,6 +45,26 @@ export class ColumnsService {
       createColumnDto.name,
       currentOrder,
     )
+  }
+
+  async updateColumns(
+    boardId: string,
+    userId: string,
+    columnId: string,
+    updateColumnDto: UpdateColumnDto,
+  ) {
+    await this.checkOwner(boardId, userId)
+
+    const result = await this.columnsRepository.updateColumn(
+      boardId,
+      columnId,
+      updateColumnDto.name,
+    )
+
+    if (result.count === 0)
+      throw new NotFoundException(DELETE_PERMISSION_DENIED)
+
+    return await this.columnsRepository.getColumn(columnId)
   }
 
   async deleteColumn(boardId: string, userId: string, columnId: string) {

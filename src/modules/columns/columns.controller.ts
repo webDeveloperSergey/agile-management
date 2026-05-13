@@ -7,6 +7,7 @@ import {
   HttpStatus,
   Param,
   ParseUUIDPipe,
+  Patch,
   Post,
   UseGuards,
 } from '@nestjs/common'
@@ -16,6 +17,7 @@ import { RoleGuard } from 'src/shared/guards/roles.guard'
 import type { JwtPayload } from 'src/shared/types/jwt-payload.interface'
 import { ColumnsService } from './columns.service'
 import { CreateColumnDto } from './dto/create-column.dto'
+import { UpdateColumnDto } from './dto/update-column.dto'
 
 @UseGuards(JwtGuard, RoleGuard)
 @Controller('boards/:boardId/columns')
@@ -38,6 +40,21 @@ export class ColumnsController {
     @Body() createColumnDto: CreateColumnDto,
   ) {
     return this.columnsService.createColumn(boardId, user.sub, createColumnDto)
+  }
+
+  @Patch(':id')
+  updateColumn(
+    @Param('boardId', ParseUUIDPipe) boardId: string,
+    @Param('id', ParseUUIDPipe) columnId: string,
+    @CurrentUser() user: JwtPayload,
+    @Body() updateColumnDto: UpdateColumnDto,
+  ) {
+    return this.columnsService.updateColumns(
+      boardId,
+      user.sub,
+      columnId,
+      updateColumnDto,
+    )
   }
 
   @HttpCode(HttpStatus.NO_CONTENT)

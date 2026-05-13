@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common'
 import { PrismaService } from 'src/core/prisma/prisma.service'
-import { COLUMN_SELECT } from './dto/selects.constants'
+import { COLUMN_SELECT } from './constants/selects.constants'
 
 @Injectable()
 export class ColumnsRepository {
@@ -10,6 +10,14 @@ export class ColumnsRepository {
     return await this.prisma.column.findMany({
       where: { board_id: boardId },
       orderBy: { order: 'asc' },
+      select: COLUMN_SELECT,
+    })
+  }
+
+  async getColumn(columnId: string) {
+    return await this.prisma.column.findUnique({
+      where: { column_id: columnId },
+      select: COLUMN_SELECT,
     })
   }
 
@@ -21,6 +29,16 @@ export class ColumnsRepository {
         order: ++order,
       },
       select: COLUMN_SELECT,
+    })
+  }
+
+  async updateColumn(boardId: string, columnId: string, name: string) {
+    return await this.prisma.column.updateMany({
+      where: {
+        board_id: boardId,
+        column_id: columnId,
+      },
+      data: { name },
     })
   }
 
