@@ -1,98 +1,184 @@
-<p align="center">
-  <a href="http://nestjs.com/" target="blank"><img src="https://nestjs.com/img/logo-small.svg" width="120" alt="Nest Logo" /></a>
-</p>
+# Agile Management API
 
-[circleci-image]: https://img.shields.io/circleci/build/github/nestjs/nest/master?token=abc123def456
-[circleci-url]: https://circleci.com/gh/nestjs/nest
+Backend REST API для управления agile-проектами. Вдохновлён Trello и Jira.
 
-  <p align="center">A progressive <a href="http://nodejs.org" target="_blank">Node.js</a> framework for building efficient and scalable server-side applications.</p>
-    <p align="center">
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/v/@nestjs/core.svg" alt="NPM Version" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/l/@nestjs/core.svg" alt="Package License" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/dm/@nestjs/common.svg" alt="NPM Downloads" /></a>
-<a href="https://circleci.com/gh/nestjs/nest" target="_blank"><img src="https://img.shields.io/circleci/build/github/nestjs/nest/master" alt="CircleCI" /></a>
-<a href="https://discord.gg/G7Qnnhy" target="_blank"><img src="https://img.shields.io/badge/discord-online-brightgreen.svg" alt="Discord"/></a>
-<a href="https://opencollective.com/nest#backer" target="_blank"><img src="https://opencollective.com/nest/backers/badge.svg" alt="Backers on Open Collective" /></a>
-<a href="https://opencollective.com/nest#sponsor" target="_blank"><img src="https://opencollective.com/nest/sponsors/badge.svg" alt="Sponsors on Open Collective" /></a>
-  <a href="https://paypal.me/kamilmysliwiec" target="_blank"><img src="https://img.shields.io/badge/Donate-PayPal-ff3f59.svg" alt="Donate us"/></a>
-    <a href="https://opencollective.com/nest#sponsor"  target="_blank"><img src="https://img.shields.io/badge/Support%20us-Open%20Collective-41B883.svg" alt="Support us"></a>
-  <a href="https://twitter.com/nestframework" target="_blank"><img src="https://img.shields.io/twitter/follow/nestframework.svg?style=social&label=Follow" alt="Follow us on Twitter"></a>
-</p>
-  <!--[![Backers on Open Collective](https://opencollective.com/nest/backers/badge.svg)](https://opencollective.com/nest#backer)
-  [![Sponsors on Open Collective](https://opencollective.com/nest/sponsors/badge.svg)](https://opencollective.com/nest#sponsor)-->
+Построен на **NestJS + PostgreSQL + Prisma ORM**.
 
-## Description
+---
 
-[Nest](https://github.com/nestjs/nest) framework TypeScript starter repository.
+## Технологии
 
-## Project setup
+- **NestJS** — фреймворк для построения серверных приложений
+- **PostgreSQL** — реляционная база данных
+- **Prisma ORM** — работа с БД, миграции, типизация
+- **JWT** — авторизация через access + refresh токены
+- **Argon2** — хеширование паролей
+- **Jest** — unit тестирование
+- **Swagger** — автодокументация API
 
-```bash
-$ npm install
+---
+
+## Архитектура
+
+```
+src/
+├── core/           # Инфраструктура: PrismaModule, ConfigModule, JwtModule
+├── shared/         # Переиспользуемое: Guards, Decorators, Types, Utils
+└── modules/
+    ├── auth/       # Авторизация и аутентификация
+    ├── users/      # Управление пользователями
+    ├── boards/     # Управление досками
+    └── columns/    # Управление колонками
 ```
 
-## Compile and run the project
+---
 
-```bash
-# development
-$ npm run start
+## API Эндпоинты
 
-# watch mode
-$ npm run start:dev
+### Auth
 
-# production mode
-$ npm run start:prod
+| Метод | URL              | Описание              | Доступ |
+| ----- | ---------------- | --------------------- | ------ |
+| POST  | `/auth/register` | Регистрация           | Все    |
+| POST  | `/auth/login`    | Вход                  | Все    |
+| POST  | `/auth/refresh`  | Обновить access токен | Все    |
+| POST  | `/auth/logout`   | Выход                 | Все    |
+
+### Users
+
+| Метод | URL          | Описание                  | Доступ |
+| ----- | ------------ | ------------------------- | ------ |
+| GET   | `/users`     | Список всех пользователей | ADMIN  |
+| GET   | `/users/:id` | Один пользователь         | Все    |
+| POST  | `/users`     | Создать пользователя      | Все    |
+
+### Boards
+
+| Метод  | URL                             | Описание            | Доступ            |
+| ------ | ------------------------------- | ------------------- | ----------------- |
+| GET    | `/boards`                       | Мои доски           | Авторизованные    |
+| GET    | `/boards/:id`                   | Одна доска          | Owner + участники |
+| POST   | `/boards`                       | Создать доску       | ADMIN             |
+| PATCH  | `/boards/:id`                   | Редактировать доску | Owner             |
+| DELETE | `/boards/:id`                   | Удалить доску       | Owner             |
+| POST   | `/boards/:id/members/:memberId` | Добавить участника  | Owner             |
+| DELETE | `/boards/:id/members/:memberId` | Удалить участника   | Owner             |
+
+### Columns
+
+| Метод  | URL                             | Описание              | Доступ            |
+| ------ | ------------------------------- | --------------------- | ----------------- |
+| GET    | `/boards/:id/columns`           | Колонки доски         | Owner + участники |
+| POST   | `/boards/:id/columns`           | Создать колонку       | Owner             |
+| PATCH  | `/boards/:id/columns/:columnId` | Редактировать колонку | Owner             |
+| DELETE | `/boards/:id/columns/:columnId` | Удалить колонку       | Owner             |
+
+---
+
+## Авторизация
+
+Система использует два токена:
+
+- **Access token** — короткоживущий (15 мин в prod, 1 час в dev), передаётся в заголовке `Authorization: Bearer <token>`
+- **Refresh token** — долгоживущий (7 дней), хранится в `HttpOnly` куке, используется для обновления access токена
+
+### Глобальные роли
+
+- `ADMIN` — полный доступ к системе
+- `USER` — обычный пользователь
+
+### Роли на доске
+
+- `ADMIN` — владелец доски
+- `MEMBER` — участник
+- `VIEWER` — наблюдатель
+
+---
+
+## Модели данных
+
+```prisma
+User         — пользователь системы
+Board        — доска проекта
+BoardMembership — участие пользователя в доске
+Column       — колонка внутри доски (To Do, In Progress, Done)
 ```
 
-## Run tests
+### Связи
 
-```bash
-# unit tests
-$ npm run test
-
-# e2e tests
-$ npm run test:e2e
-
-# test coverage
-$ npm run test:cov
+```
+User (1) ──→ (M) Board          — один пользователь владеет многими досками
+User (M) ──→ (M) Board          — через BoardMembership (участники)
+Board (1) ──→ (M) Column        — одна доска содержит много колонок
 ```
 
-## Deployment
+---
 
-When you're ready to deploy your NestJS application to production, there are some key steps you can take to ensure it runs as efficiently as possible. Check out the [deployment documentation](https://docs.nestjs.com/deployment) for more information.
+## Запуск проекта
 
-If you are looking for a cloud-based platform to deploy your NestJS application, check out [Mau](https://mau.nestjs.com), our official platform for deploying NestJS applications on AWS. Mau makes deployment straightforward and fast, requiring just a few simple steps:
+### Требования
+
+- Node.js 18+
+- PostgreSQL 14+
+
+### Установка
 
 ```bash
-$ npm install -g @nestjs/mau
-$ mau deploy
+# Клонировать репозиторий
+git clone https://github.com/webDeveloperSergey/agile-management
+
+# Установить зависимости
+npm install
+
+# Создать .env файл
+cp .env.sample .env
+# Заполнить переменные окружения
+
+# Применить миграции
+npx prisma migrate deploy
+
+# Запустить в режиме разработки
+npm run start:dev
 ```
 
-With Mau, you can deploy your application in just a few clicks, allowing you to focus on building features rather than managing infrastructure.
+### Переменные окружения
 
-## Resources
+```env
+DATABASE_URL="postgresql://user:password@localhost:5432/agile_management"
+JWT_SECRET="your_jwt_secret"
+JWT_EXPIRES_IN="15"           # в минутах
+JWT_REFRESH_EXPIRES_IN="7"    # в днях
+MODE="development"
+CLIENT_URL="http://localhost:3001"
+DOMAIN="localhost"
+```
 
-Check out a few resources that may come in handy when working with NestJS:
+---
 
-- Visit the [NestJS Documentation](https://docs.nestjs.com) to learn more about the framework.
-- For questions and support, please visit our [Discord channel](https://discord.gg/G7Qnnhy).
-- To dive deeper and get more hands-on experience, check out our official video [courses](https://courses.nestjs.com/).
-- Deploy your application to AWS with the help of [NestJS Mau](https://mau.nestjs.com) in just a few clicks.
-- Visualize your application graph and interact with the NestJS application in real-time using [NestJS Devtools](https://devtools.nestjs.com).
-- Need help with your project (part-time to full-time)? Check out our official [enterprise support](https://enterprise.nestjs.com).
-- To stay in the loop and get updates, follow us on [X](https://x.com/nestframework) and [LinkedIn](https://linkedin.com/company/nestjs).
-- Looking for a job, or have a job to offer? Check out our official [Jobs board](https://jobs.nestjs.com).
+## Тестирование
 
-## Support
+```bash
+# Запустить все тесты
+npm run test
 
-Nest is an MIT-licensed open source project. It can grow thanks to the sponsors and support by the amazing backers. If you'd like to join them, please [read more here](https://docs.nestjs.com/support).
+# Запустить конкретный файл
+npx jest auth.service.spec.ts --watch
 
-## Stay in touch
+# Покрытие тестами
+npm run test:cov
+```
 
-- Author - [Kamil Myśliwiec](https://twitter.com/kammysliwiec)
-- Website - [https://nestjs.com](https://nestjs.com/)
-- Twitter - [@nestframework](https://twitter.com/nestframework)
+Покрыто unit тестами:
 
-## License
+- `AuthService` — 5 тестов
+- `BoardsService` — 13 тестов
 
-Nest is [MIT licensed](https://github.com/nestjs/nest/blob/master/LICENSE).
+---
+
+## Документация API
+
+После запуска сервера Swagger доступен по адресу:
+
+```
+http://localhost:3000/api/docs
+```
