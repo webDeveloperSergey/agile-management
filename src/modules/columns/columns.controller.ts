@@ -1,6 +1,7 @@
 import {
   Body,
   Controller,
+  Delete,
   Get,
   HttpCode,
   HttpStatus,
@@ -37,5 +38,15 @@ export class ColumnsController {
     @Body() createColumnDto: CreateColumnDto,
   ) {
     return this.columnsService.createColumn(boardId, user.sub, createColumnDto)
+  }
+
+  @HttpCode(HttpStatus.NO_CONTENT)
+  @Delete(':id')
+  deleteColumn(
+    @Param('boardId', ParseUUIDPipe) boardId: string,
+    @Param('id', ParseUUIDPipe) columnId: string,
+    @CurrentUser() user: JwtPayload,
+  ) {
+    return this.columnsService.deleteColumn(boardId, user.sub, columnId)
   }
 }

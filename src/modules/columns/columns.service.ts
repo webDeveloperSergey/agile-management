@@ -1,7 +1,14 @@
-import { ForbiddenException, Injectable } from '@nestjs/common'
+import {
+  ForbiddenException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common'
 import { BoardsService } from '../boards/boards.service'
 import { ColumnsRepository } from './columns.repository'
-import { CANNOT_CREATE_COLUMN } from './dto/columns-messages.constants'
+import {
+  CANNOT_CREATE_COLUMN,
+  DELETE_PERMISSION_DENIED,
+} from './dto/columns-messages.constants'
 import { CreateColumnDto } from './dto/create-column.dto'
 
 @Injectable()
@@ -29,16 +36,31 @@ export class ColumnsService {
     userId: string,
     createColumnDto: CreateColumnDto,
   ) {
-    const board = await this.boardsService.getBoardById(boardId, userId)
+    const board = await this.checkOwner(boardId, userId)
     const currentOrder = board.columns.at(-1)?.order ?? 0
-
-    if (board.owner.user_id !== userId)
-      throw new ForbiddenException(CANNOT_CREATE_COLUMN)
 
     return await this.columnsRepository.createColumn(
       board.board_id,
       createColumnDto.name,
       currentOrder,
     )
+  }
+
+  async deleteColumn(boardId: string, userId: string, columnId: string) {
+    await this.checkOwner(boardId, userId)
+
+    const result = await this.columnsRepository.deleteColumn(boardId, columnId)
+
+    if (result.count === 0)
+      throw new NotFoundException(DELETE_PERMISSION_DENIED)
+  }
+
+  private async checkOwner(boardId: string, userId: string) {
+    const board = await this.boardsService.getBoardById(boardId, userId)
+
+    if (board.owner.user_id !== userId)
+      throw new ForbiddenException(CANNOT_CREATE_COLUMN)
+
+    return board
   }
 }

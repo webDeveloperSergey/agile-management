@@ -23,4 +23,13 @@ export class ColumnsRepository {
       select: COLUMN_SELECT,
     })
   }
+
+  async deleteColumn(boardId: string, columnId: string) {
+    return await this.prisma.column.deleteMany({
+      where: {
+        board_id: boardId,
+        column_id: columnId,
+      },
+    })
+  }
 }
